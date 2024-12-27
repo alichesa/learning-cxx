@@ -70,8 +70,8 @@ int main(int argc, char **argv) {
 
     std::vector<const char *> answers[]{
         {"fd"},
-        {"ffr", "d"},
-        {"r", "d", "d"},
+        {"d", "ffr"},
+        {"d", "d", "r"},
     };
 
     // ---- 不要修改以下代码 ----
