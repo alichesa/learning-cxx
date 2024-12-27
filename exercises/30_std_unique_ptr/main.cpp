@@ -1,86 +1,85 @@
-﻿#include <memory>      // std::unique_ptr
-#include <string>      // std::string
-#include <vector>      // std::vector
-#include <cstring>     // strcmp
-#include <iostream>    // std::cout, std::cerr
-#include <cstdlib>     // std::exit
+﻿#include "../exercise.h"
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
-#define ASSERT(condition, message) \
-    do { \
-        if (!(condition)) { \
-            std::cerr << "Assertion failed: " << (message) << std::endl; \
-            std::exit(EXIT_FAILURE); \
-        } \
-    } while (false)
+// READ: `std::unique_ptr` <https://zh.cppreference.com/w/cpp/memory/unique_ptr>
 
-std::vector<std::string> RECORDS;  // 全局记录容器
+std::vector<std::string> RECORDS;
 
 class Resource {
+    std::string _records;
+
 public:
     void record(char record) {
-        RECORDS.emplace_back(1, record);  // 每次记录一个字符
+        _records.push_back(record);
+    }
+
+    ~Resource() {
+        RECORDS.push_back(_records);
     }
 };
 
 using Unique = std::unique_ptr<Resource>;
-
 Unique reset(Unique ptr) {
-    if (!ptr) {
-        std::cout << "reset: nullptr received, creating new resource" << std::endl;
-        ptr = std::make_unique<Resource>();
-        ptr->record('r');  // 记录资源创建
-    } else {
-        ptr->record('r');
-        std::cout << "reset: recorded 'r'" << std::endl;
-    }
-    return ptr;
+    if (ptr) ptr->record('r');
+    return std::make_unique<Resource>();
 }
-
 Unique drop(Unique ptr) {
-    if (ptr) {
-        ptr->record('d');
-        std::cout << "drop: recorded 'd'" << std::endl;
-    }
+    if (ptr) ptr->record('d');
     return nullptr;
 }
-
 Unique forward(Unique ptr) {
-    if (ptr) {
-        ptr->record('f');
-        std::cout << "forward: recorded 'f'" << std::endl;
-    }
+    if (ptr) ptr->record('f');
     return ptr;
 }
 
 int main(int argc, char **argv) {
     std::vector<std::string> problems[3];
 
-    RECORDS.clear();
-    drop(reset(nullptr));  // Test 1
+    drop(forward(reset(nullptr)));
     problems[0] = std::move(RECORDS);
+    
+    // Output problems[0] for debugging
+    std::cout << "problems[0]:\n";
+    for (const auto &record : problems[0]) {
+        std::cout << record << std::endl;
+    }
 
-    RECORDS.clear();
-    forward(drop(reset(forward(forward(reset(nullptr))))));  // Test 2
+    forward(drop(reset(forward(forward(reset(nullptr))))));
     problems[1] = std::move(RECORDS);
+    
+    // Output problems[1] for debugging
+    std::cout << "problems[1]:\n";
+    for (const auto &record : problems[1]) {
+        std::cout << record << std::endl;
+    }
 
-    RECORDS.clear();
-    drop(drop(reset(drop(reset(reset(nullptr))))));  // Test 3
+    drop(drop(reset(drop(reset(reset(nullptr))))));
     problems[2] = std::move(RECORDS);
+    
+    // Output problems[2] for debugging
+    std::cout << "problems[2]:\n";
+    for (const auto &record : problems[2]) {
+        std::cout << record << std::endl;
+    }
 
-    std::vector<const char *> answers[] {
-        {"r", "d"},    // Test 1 结果
-        {"r", "f", "d"},   // Test 2 结果
-        {"r", "d", "r", "d", "r", "d"},   // Test 3 结果
+    // ---- 不要修改以上代码 ----
+
+    std::vector<const char *> answers[]{
+        {"fd"},
+        {"ffr", "d"},
+        {"r", "d", "d"},
     };
 
+    // ---- 不要修改以下代码 ----
+
     for (auto i = 0; i < 3; ++i) {
-        std::cout << "Test " << i + 1 << " RECORDS:" << std::endl;
-        for (const auto &record : problems[i]) {
-            std::cout << "  " << record << std::endl;
-        }
         ASSERT(problems[i].size() == answers[i].size(), "wrong size");
         for (auto j = 0; j < problems[i].size(); ++j) {
-            ASSERT(::strcmp(problems[i][j].c_str(), answers[i][j]) == 0, "wrong location");
+            ASSERT(std::strcmp(problems[i][j].c_str(), answers[i][j]) == 0, "wrong location");
         }
     }
 
