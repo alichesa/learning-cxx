@@ -1,26 +1,32 @@
 #include "../exercise.h"
 
-// C++ 中，`class` 和 `struct` 之间的**唯一区别**是
-// `class` 默认访问控制符是 `private`，
-// `struct` 默认访问控制符是 `public`。
-// READ: 访问说明符 <https://zh.cppreference.com/w/cpp/language/access>
-
-// 这个 class 中的字段被 private 修饰，只能在 class 内部访问。
-// 因此必须提供构造器来初始化字段。
-// READ: 构造器 <https://zh.cppreference.com/w/cpp/language/constructor>
 class Fibonacci {
-    size_t cache[16];
-    int cached;
+    size_t cache[16]; // 缓存数组
+    int cached;       // 已缓存的斐波那契数数量
 
 public:
-    // TODO: 实现构造器
-    // Fibonacci()
+    // 构造器，初始化前两个斐波那契数和缓存计数器
+    Fibonacci() : cached(2) {
+        cache[0] = 0;
+        cache[1] = 1;
+    }
 
-    // TODO: 实现正确的缓存优化斐波那契计算
+    // 计算斐波那契数列的第i个值（从0开始计数）
     size_t get(int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        // 如果i小于已缓存的数量，直接返回缓存中的值
+        if (i < cached) {
+            return cache[i];
         }
+
+        // 计算并填充缓存中缺失的值
+        for (int j = cached; j <= i; ++j) {
+            cache[j] = cache[j - 1] + cache[j - 2];
+        }
+
+        // 更新已缓存的数量
+        cached = i + 1;
+
+        // 返回所需的斐波那契数
         return cache[i];
     }
 };

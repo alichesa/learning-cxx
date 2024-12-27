@@ -1,25 +1,28 @@
 #include "../exercise.h"
 
-// READ: Trivial type <https://learn.microsoft.com/zh-cn/cpp/cpp/trivial-standard-layout-and-pod-types?view=msvc-170>
-
 struct FibonacciCache {
-    unsigned long long cache[16];
-    int cached;
+    unsigned long long cache[16] = {0, 1,1}; // 初始化缓存数组为0（可选，但推荐）
+    int cached = 2; // 修改为-1，表示还没有缓存任何值
 };
 
-// TODO: 实现正确的缓存优化斐波那契计算
 static unsigned long long fibonacci(FibonacciCache &cache, int i) {
-    for (; false; ++cached) {
-        cache[cached] = cache[cached - 1] + cache[cached - 2];
+    if (i == 0) return 0;
+    if (i == 1) return 1;
+    if (i <= cache.cached) {
+        return cache.cache[i]; // 正确访问缓存数组
     }
+    // 如果需要，可以先检查cache[0]和cache[1]是否被正确初始化（在这个例子中不需要）
+    // 因为在i==0或i==1的情况下函数会直接返回，不会执行到这里
+    for (int j = cache.cached + 1; j <= i; ++j) {
+        cache.cache[j] = cache.cache[j - 1] + cache.cache[j - 2];
+    }
+    cache.cached = i; // 更新缓存的最大索引
     return cache.cache[i];
 }
 
 int main(int argc, char **argv) {
-    // TODO: 初始化缓存结构体，使计算正确
-    // NOTICE: C/C++ 中，读取未初始化的变量（包括结构体变量）是未定义行为
-    // READ: 初始化的各种写法 <https://zh.cppreference.com/w/cpp/language/initialization>
-    FibonacciCache fib;
+    FibonacciCache fib; // 这里fib的成员已经被上面的初始化列表初始化了
+    // 断言检查fibonacci(10)是否等于55
     ASSERT(fibonacci(fib, 10) == 55, "fibonacci(10) should be 55");
     std::cout << "fibonacci(10) = " << fibonacci(fib, 10) << std::endl;
     return 0;

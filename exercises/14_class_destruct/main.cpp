@@ -6,22 +6,41 @@
 /// @brief 任意缓存容量的斐波那契类型。
 /// @details 可以在构造时传入缓存容量，因此需要动态分配缓存空间。
 class DynFibonacci {
-    size_t *cache;
-    int cached;
+    size_t *cache;  // 缓存数组指针
+    int capacity;   // 缓存容量
+    int cached;     // 已计算的斐波那契数的个数
 
 public:
-    // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
-
-    // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
-
-    // TODO: 实现正确的缓存优化斐波那契计算
-    size_t get(int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+    // 动态设置容量的构造器
+    DynFibonacci(int capacity): capacity(capacity), cached(2) {  // 从计算第2项开始
+        if (capacity <= 0) {
+            cache = nullptr;
+            return;
         }
-        return cache[i];
+        
+        cache = new size_t[capacity];  // 动态分配缓存空间
+        
+        // 初始缓存值
+        cache[0] = 0;  // Fibonacci(0) = 0
+        if (capacity > 1) cache[1] = 1;  // Fibonacci(1) = 1
+    }
+
+    // 析构器，释放缓存空间
+    ~DynFibonacci() {
+        delete[] cache;  // 释放动态分配的缓存空间
+    }
+
+    // 优化的斐波那契计算方法
+    size_t get(int i) {
+        // 如果缓存中没有计算过该数值，则进行计算并缓存
+        for (; cached <= i; ++cached) {
+            cache[cached] = cache[cached - 1] + cache[cached - 2];  // 斐波那契递推公式
+        }
+
+        // 调试输出，查看缓存状态
+        std::cout << "cache[" << i << "] = " << cache[i] << std::endl;
+
+        return cache[i];  // 返回缓存中的斐波那契值
     }
 };
 

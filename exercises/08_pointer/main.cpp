@@ -1,10 +1,34 @@
 ﻿#include "../exercise.h"
-
-// READ: 数组向指针退化 <https://zh.cppreference.com/w/cpp/language/array#%E6%95%B0%E7%BB%84%E5%88%B0%E6%8C%87%E9%92%88%E7%9A%84%E9%80%80%E5%8C%96>
+ 
 bool is_fibonacci(int *ptr, int len, int stride) {
-    ASSERT(len >= 3, "`len` should be at least 3");
-    // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
-    // arr[i + 2] = arr[i] + arr[i + 1]
+    if (len < 3) {
+        return false;
+    }
+ 
+    // 查找非零的起始元素
+    int start_idx = 0;
+    while (start_idx < len && (ptr[start_idx * stride] == 0 || ptr[(start_idx + 1) * stride] == 0)) {
+        start_idx++;
+    }
+ 
+    // 如果没有找到两个非零的起始元素，则不是斐波那契数列
+    if (start_idx >= len - 1) {
+        return false;
+    }
+ 
+    int a = ptr[start_idx * stride];
+    int b = ptr[(start_idx + 1) * stride];
+ 
+    // 从第三个有效元素开始检查斐波那契数列的性质
+    for (int i = start_idx + 2; i < len; i++) {
+        int c = ptr[i * stride];
+        if (c != a + b) {
+            return false;
+        }
+        a = b;
+        b = c;
+    }
+ 
     return true;
 }
 
